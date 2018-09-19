@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+    pyserver:
+        build:
+            context: .
+            dockerfile: pyserver/Dockerfile
+    jsclient:
+        build:
+            context: .
+            dockerfile: jsclient/Dockerfile
+        ports:
+            - "8080:8080"
+    envoy:
+        image: envoyproxy/envoy
+        volumes:
+            - type: "bind"
+              source: ./envoy/envoy.yaml
+              target: /etc/envoy/envoy.yaml
+        command: "/usr/local/bin/envoy -c /etc/envoy/envoy.yaml -l trace --log-path /tmp/envoy_info.log"
+        ports:
+            - "8081:8081"
+        depends_on:
+            - pyserver
